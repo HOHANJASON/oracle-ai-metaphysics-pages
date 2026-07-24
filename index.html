@@ -340,6 +340,99 @@
 
     </div>
 
+    <!-- 個人出生資料 × 地磁命理共振 -->
+    <section id="personalResonance" class="bg-gradient-to-br from-slate-900/80 to-cyber-950/10 border border-cyber-500/20 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-800 pb-5">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-cyber-500/10 flex items-center justify-center text-cyber-500">
+                    <i class="fa-solid fa-user-astronaut"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-mono text-cyber-500 uppercase tracking-widest">Personal Resonance Engine</span>
+                    <h3 class="text-xl font-bold font-serif text-slate-100">三、出生命盤與地磁方位共振</h3>
+                    <p class="text-xs text-slate-400 mt-1">輸入出生年月日時，自動套合命卦、日主五行、二十四山與目前朝向。</p>
+                </div>
+            </div>
+            <span class="text-[10px] text-amber-300 border border-amber-500/30 bg-amber-500/5 rounded-full px-3 py-1">命理象徵模型・非物理磁場檢測</span>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <form class="xl:col-span-5 bg-slate-950/70 border border-slate-800 rounded-2xl p-5 space-y-4" onsubmit="calculatePersonalResonance(event)">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label class="space-y-1.5">
+                        <span class="text-[11px] text-slate-400">姓名／案例名稱</span>
+                        <input id="personalName" type="text" placeholder="例如：林昱辰" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                    </label>
+                    <label class="space-y-1.5">
+                        <span class="text-[11px] text-slate-400">出生地</span>
+                        <input id="birthPlace" type="text" placeholder="例如：臺北市" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                    </label>
+                    <label class="space-y-1.5">
+                        <span class="text-[11px] text-slate-400">出生年月日 *</span>
+                        <input id="birthDate" type="date" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                    </label>
+                    <label class="space-y-1.5">
+                        <span class="text-[11px] text-slate-400">出生時間 *</span>
+                        <input id="birthTime" type="time" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                    </label>
+                    <label class="space-y-1.5 sm:col-span-2">
+                        <span class="text-[11px] text-slate-400">生理性別（命卦規則）</span>
+                        <select id="birthGender" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="bg-slate-900/50 rounded-xl p-3 text-[11px] text-slate-400 leading-relaxed">
+                    本次會使用目前羅盤角度 <strong id="profileHeading" class="text-cyber-500">180°</strong>。請先校準手機，或拖動上方角度滑桿。
+                </div>
+                <button type="submit" class="w-full bg-cyber-500 hover:bg-cyber-400 text-slate-950 font-bold rounded-xl py-3 transition-all cyber-glow">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>建立個人命理共振分析
+                </button>
+            </form>
+
+            <div class="xl:col-span-7 bg-slate-950/70 border border-slate-800 rounded-2xl p-5 md:p-6">
+                <div id="personalEmpty" class="min-h-72 flex flex-col items-center justify-center text-center text-slate-500">
+                    <i class="fa-solid fa-fingerprint text-4xl text-slate-700 mb-4"></i>
+                    <strong class="text-slate-300">等待出生資料</strong>
+                    <p class="text-xs mt-2 max-w-sm leading-relaxed">完成輸入後，系統會顯示個人命卦、日主五行、目前方位關係、共振分數與行動建議。</p>
+                </div>
+                <div id="personalResult" class="hidden space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div>
+                            <span id="resultIdentity" class="text-[10px] text-cyber-500 font-mono uppercase tracking-widest">PERSONAL PROFILE</span>
+                            <h4 id="resultTitle" class="text-xl font-bold font-serif text-slate-100 mt-1">個人共振報告</h4>
+                            <p id="resultSummary" class="text-xs text-slate-400 mt-2 leading-relaxed max-w-xl"></p>
+                        </div>
+                        <div class="text-left sm:text-right">
+                            <span class="text-[10px] text-slate-500 block">地磁命理共振指數</span>
+                            <div><strong id="resonanceScore" class="text-5xl font-black font-urban text-cyber-500">--</strong><span class="text-sm text-slate-500"> / 100</span></div>
+                            <span id="resonanceBand" class="inline-block mt-1 text-[10px] rounded-full px-2 py-1 bg-cyber-500/10 text-cyber-500">等待計算</span>
+                        </div>
+                    </div>
+                    <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div id="resonanceBar" class="h-full bg-gradient-to-r from-blue-500 via-cyber-500 to-emerald-400 transition-all duration-700" style="width:0%"></div></div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">日主五行</span><strong id="dayMasterResult" class="text-sm text-slate-100">--</strong></div>
+                        <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">個人命卦</span><strong id="kuaResult" class="text-sm text-slate-100">--</strong></div>
+                        <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">目前方位</span><strong id="directionResult" class="text-sm text-slate-100">--</strong></div>
+                        <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">最近吉方</span><strong id="favorableResult" class="text-sm text-slate-100">--</strong></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="border border-slate-800 rounded-xl p-4">
+                            <h5 class="text-xs font-bold text-gold-500 mb-2"><i class="fa-solid fa-scroll mr-2"></i>個人命理摘要</h5>
+                            <p id="metaphysicsResult" class="text-xs text-slate-300 leading-relaxed"></p>
+                        </div>
+                        <div class="border border-slate-800 rounded-xl p-4">
+                            <h5 class="text-xs font-bold text-emerald-400 mb-2"><i class="fa-solid fa-location-arrow mr-2"></i>方位行動建議</h5>
+                            <ul id="actionsResult" class="text-xs text-slate-300 leading-relaxed space-y-1.5"></ul>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 border-t border-slate-800 pt-3">此分數是八宅命卦、干支五行與方位角差的象徵性模型，不代表物理磁場強度、醫療診斷或科學因果。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- 下半部：動態空間針灸救偏診斷 -->
     <div class="bg-slate-900/40 border border-slate-800 rounded-3xl p-6 md:p-8 space-y-6 shadow-xl">
         <div class="flex items-center gap-3 border-b border-slate-800 pb-4">
@@ -347,7 +440,7 @@
                 <i class="fa-solid fa-notes-medical"></i>
             </div>
             <div>
-                <h3 class="text-lg font-bold font-serif text-slate-100">三、九運空間針灸與「本命救偏」實務診斷報告</h3>
+                <h3 class="text-lg font-bold font-serif text-slate-100">四、九運空間針灸與「本命救偏」實務診斷報告</h3>
                 <p class="text-xs text-slate-400">本機大腦實時將當前山向與飛星套合，免聯網輸出全方位決策診斷</p>
             </div>
         </div>
@@ -418,6 +511,7 @@
     let currentAngle = 180;
     let gyroActive = false;
     let lowPassAlpha = null; // 用於地磁低通平滑濾波
+    let personalProfileReady = false;
 
     // 本地自定義 Toast 彈窗 (取代 alert)
     function showToast(msg) {
@@ -476,6 +570,14 @@
 
         // 載入本地保存歷史檔案
         loadSavedRecords();
+        const storedProfile = JSON.parse(localStorage.getItem("personal_resonance_profile") || "null");
+        if (storedProfile) {
+            document.getElementById("personalName").value = storedProfile.name || "";
+            document.getElementById("birthPlace").value = storedProfile.birthPlace || "";
+            document.getElementById("birthDate").value = storedProfile.dateValue || "";
+            document.getElementById("birthTime").value = storedProfile.timeValue || "";
+            document.getElementById("birthGender").value = storedProfile.gender || "male";
+        }
 
         // 啟動默認排盤 (180°午山向)
         updateCompass(180);
@@ -545,6 +647,7 @@
         document.getElementById("compassDisc").style.transform = `rotate(${-normalized}deg)`;
         document.getElementById("headingText").textContent = Math.round(normalized);
         document.getElementById("angleSlider").value = Math.round(normalized);
+        document.getElementById("profileHeading").textContent = `${Math.round(normalized)}°`;
 
         // 獲取向山與坐山 (相差180度)
         const facingMountain = getMountainByAngle(normalized);
@@ -558,6 +661,8 @@
             renderFlyingGrid(stars);
             renderAcupunctureGuide(facingMountain, sittingMountain, stars);
         }
+
+        if (personalProfileReady) calculatePersonalResonance();
     }
 
     function getMountainByAngle(angle) {
@@ -809,6 +914,116 @@
     function applyLocalRecord(angle) {
         updateCompass(angle);
         showToast(`已成功調取本地磁偏歷史度數: ${Math.round(angle)}°`);
+    }
+
+    const PERSONAL_KUA = {
+        1: { trigram: "坎", element: "水", directions: [157.5, 112.5, 67.5, 0], labels: ["東南", "東", "南", "北"] },
+        2: { trigram: "坤", element: "土", directions: [225, 292.5, 270, 45], labels: ["西南", "西北", "西", "東北"] },
+        3: { trigram: "震", element: "木", directions: [180, 0, 157.5, 90], labels: ["南", "北", "東南", "東"] },
+        4: { trigram: "巽", element: "木", directions: [0, 180, 90, 157.5], labels: ["北", "南", "東", "東南"] },
+        6: { trigram: "乾", element: "金", directions: [270, 45, 225, 292.5], labels: ["西", "東北", "西南", "西北"] },
+        7: { trigram: "兌", element: "金", directions: [292.5, 225, 45, 270], labels: ["西北", "西南", "東北", "西"] },
+        8: { trigram: "艮", element: "土", directions: [225, 292.5, 270, 45], labels: ["西南", "西北", "西", "東北"] },
+        9: { trigram: "離", element: "火", directions: [90, 157.5, 0, 180], labels: ["東", "東南", "北", "南"] }
+    };
+    const PERSONAL_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+    const PERSONAL_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+    const PERSONAL_ELEMENTS = { 甲:"木", 乙:"木", 丙:"火", 丁:"火", 戊:"土", 己:"土", 庚:"金", 辛:"金", 壬:"水", 癸:"水" };
+    const DIRECTION_SECTORS = [
+        { center:0, name:"北・坎", element:"水" }, { center:45, name:"東北・艮", element:"土" },
+        { center:90, name:"東・震", element:"木" }, { center:135, name:"東南・巽", element:"木" },
+        { center:180, name:"南・離", element:"火" }, { center:225, name:"西南・坤", element:"土" },
+        { center:270, name:"西・兌", element:"金" }, { center:315, name:"西北・乾", element:"金" }
+    ];
+
+    function reducePersonalDigit(value) {
+        let result = Math.abs(value);
+        while (result > 9) result = String(result).split("").reduce((sum, digit) => sum + Number(digit), 0);
+        return result;
+    }
+
+    function personalKuaNumber(year, gender) {
+        const digit = reducePersonalDigit(year);
+        let kua = year >= 2000 ? (gender === "male" ? 9 - digit : digit + 6) : (gender === "male" ? 10 - digit : digit + 5);
+        kua = ((kua - 1) % 9 + 9) % 9 + 1;
+        return kua === 5 ? (gender === "male" ? 2 : 8) : kua;
+    }
+
+    function julianDayNumber(year, month, day) {
+        const a = Math.floor((14 - month) / 12);
+        const y = year + 4800 - a;
+        const m = month + 12 * a - 3;
+        return day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+    }
+
+    function angularDistance(a, b) {
+        const diff = Math.abs(a - b) % 360;
+        return Math.min(diff, 360 - diff);
+    }
+
+    function personalElementRelationship(day, direction) {
+        if (day === direction) return { adjustment:14, label:"同氣相應" };
+        const generates = { 木:"火", 火:"土", 土:"金", 金:"水", 水:"木" };
+        const controls = { 木:"土", 土:"水", 水:"火", 火:"金", 金:"木" };
+        if (generates[direction] === day) return { adjustment:10, label:"方位生扶日主" };
+        if (generates[day] === direction) return { adjustment:-5, label:"日主洩氣於方位" };
+        if (controls[direction] === day) return { adjustment:-12, label:"方位五行克日主" };
+        return { adjustment:2, label:"日主可制衡方位" };
+    }
+
+    function calculatePersonalResonance(event) {
+        if (event) event.preventDefault();
+        const dateValue = document.getElementById("birthDate").value;
+        const timeValue = document.getElementById("birthTime").value;
+        if (!dateValue || !timeValue) {
+            showToast("請完整輸入出生年月日與時間。");
+            return;
+        }
+
+        const [year, month, day] = dateValue.split("-").map(Number);
+        const [hour] = timeValue.split(":").map(Number);
+        const gender = document.getElementById("birthGender").value;
+        const name = document.getElementById("personalName").value.trim() || "個人案例";
+        const birthPlace = document.getElementById("birthPlace").value.trim() || "未指定出生地";
+        const dayCycle = (julianDayNumber(year, month, day) + 49) % 60;
+        const dayStem = PERSONAL_STEMS[dayCycle % 10];
+        const dayBranch = PERSONAL_BRANCHES[dayCycle % 12];
+        const dayElement = PERSONAL_ELEMENTS[dayStem];
+        const hourBranch = PERSONAL_BRANCHES[Math.floor((hour + 1) / 2) % 12];
+        const kua = personalKuaNumber(year, gender);
+        const kuaInfo = PERSONAL_KUA[kua];
+        const currentDirection = DIRECTION_SECTORS.reduce((best, sector) => angularDistance(currentAngle, sector.center) < angularDistance(currentAngle, best.center) ? sector : best);
+        const ranked = kuaInfo.directions.map((direction, index) => ({
+            direction, label:kuaInfo.labels[index], distance:angularDistance(currentAngle, direction)
+        })).sort((a, b) => a.distance - b.distance);
+        const nearest = ranked[0];
+        const relation = personalElementRelationship(dayElement, currentDirection.element);
+        const alignment = Math.max(0, 1 - nearest.distance / 90) * 48;
+        const score = Math.round(Math.max(18, Math.min(96, 34 + alignment + relation.adjustment)));
+        const band = score >= 82 ? "高度共振" : score >= 65 ? "良好共振" : score >= 48 ? "中性可調" : "低度共振";
+        const yearCycle = ((year - 4) % 60 + 60) % 60;
+        const yearPillar = `${PERSONAL_STEMS[yearCycle % 10]}${PERSONAL_BRANCHES[yearCycle % 12]}`;
+        const actions = score >= 65
+            ? [`重要工作可優先面向${nearest.label}`, `可用${kuaInfo.element}與${dayElement}的象徵色作空間提示`, "移動位置後重新校準手機羅盤"]
+            : [`先轉向${nearest.label}再重新測量`, "避免長時間固定在目前低分朝向", "同時以採光、通風與人體舒適度校正"];
+
+        document.getElementById("personalEmpty").classList.add("hidden");
+        document.getElementById("personalResult").classList.remove("hidden");
+        document.getElementById("resultIdentity").textContent = `${name}・${birthPlace}`;
+        document.getElementById("resultTitle").textContent = `${yearPillar}年・${dayStem}${dayBranch}日・${hourBranch}時`;
+        document.getElementById("resultSummary").textContent = `${dayStem}${dayElement}日主面向${currentDirection.name}（${currentDirection.element}），${relation.label}；與最近個人吉方${nearest.label}相差 ${nearest.distance.toFixed(1)}°。`;
+        document.getElementById("resonanceScore").textContent = score;
+        document.getElementById("resonanceBand").textContent = band;
+        document.getElementById("resonanceBar").style.width = `${score}%`;
+        document.getElementById("dayMasterResult").textContent = `${dayStem}${dayElement}`;
+        document.getElementById("kuaResult").textContent = `${kua}・${kuaInfo.trigram}卦（${kuaInfo.element}）`;
+        document.getElementById("directionResult").textContent = `${Math.round(currentAngle)}°・${currentDirection.name}`;
+        document.getElementById("favorableResult").textContent = `${nearest.label}・差 ${nearest.distance.toFixed(1)}°`;
+        document.getElementById("metaphysicsResult").textContent = `年柱象徵為${yearPillar}，日柱為${dayStem}${dayBranch}，日主屬${dayElement}；個人命卦為${kuaInfo.trigram}卦，四個有利方向為${kuaInfo.labels.join("、")}。`;
+        document.getElementById("actionsResult").innerHTML = actions.map(item => `<li>• ${item}</li>`).join("");
+        personalProfileReady = true;
+        localStorage.setItem("personal_resonance_profile", JSON.stringify({ name, birthPlace, dateValue, timeValue, gender }));
+        if (event) showToast(`${name}的個人命理共振分析已完成。`);
     }
 
     function deleteLocalRecord(index, event) {
