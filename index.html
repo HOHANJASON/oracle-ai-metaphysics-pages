@@ -417,7 +417,7 @@
                         <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">目前方位</span><strong id="directionResult" class="text-sm text-slate-100">--</strong></div>
                         <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">最近吉方</span><strong id="favorableResult" class="text-sm text-slate-100">--</strong></div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="border border-slate-800 rounded-xl p-4">
                             <h5 class="text-xs font-bold text-gold-500 mb-2"><i class="fa-solid fa-scroll mr-2"></i>個人命理摘要</h5>
                             <p id="metaphysicsResult" class="text-xs text-slate-300 leading-relaxed"></p>
@@ -425,6 +425,11 @@
                         <div class="border border-slate-800 rounded-xl p-4">
                             <h5 class="text-xs font-bold text-emerald-400 mb-2"><i class="fa-solid fa-location-arrow mr-2"></i>方位行動建議</h5>
                             <ul id="actionsResult" class="text-xs text-slate-300 leading-relaxed space-y-1.5"></ul>
+                        </div>
+                        <div class="border border-purple-500/20 bg-purple-500/5 rounded-xl p-4">
+                            <h5 class="text-xs font-bold text-purple-300 mb-2"><i class="fa-solid fa-arrows-rotate mr-2"></i>地磁方位互補方案</h5>
+                            <p id="complementStrategy" class="text-xs text-slate-300 leading-relaxed mb-2"></p>
+                            <ul id="complementResult" class="text-xs text-slate-300 leading-relaxed space-y-1.5"></ul>
                         </div>
                     </div>
                     <p class="text-[10px] text-slate-500 border-t border-slate-800 pt-3">此分數是八宅命卦、干支五行與方位角差的象徵性模型，不代表物理磁場強度、醫療診斷或科學因果。</p>
@@ -935,6 +940,13 @@
         { center:180, name:"南・離", element:"火" }, { center:225, name:"西南・坤", element:"土" },
         { center:270, name:"西・兌", element:"金" }, { center:315, name:"西北・乾", element:"金" }
     ];
+    const ELEMENT_GUIDES = {
+        木:{ colors:["青","綠"], materials:["原木","闊葉植物"], actions:["規劃成長","學習","啟動新計畫"] },
+        火:{ colors:["紅","紫","暖橙"], materials:["暖光","燈具"], actions:["發表","曝光","建立連結"] },
+        土:{ colors:["米黃","赭色"], materials:["陶瓷","天然石"], actions:["穩定節奏","整合資源","完成收尾"] },
+        金:{ colors:["白","銀","金"], materials:["金屬","圓形器物"], actions:["決策","整理","建立規範"] },
+        水:{ colors:["深藍","黑"], materials:["玻璃","流線造型"], actions:["研究","沉澱","調整策略"] }
+    };
 
     function reducePersonalDigit(value) {
         let result = Math.abs(value);
@@ -962,13 +974,29 @@
     }
 
     function personalElementRelationship(day, direction) {
-        if (day === direction) return { adjustment:14, label:"同氣相應" };
+        if (day === direction) return { adjustment:14, label:"同氣相應", type:"same" };
         const generates = { 木:"火", 火:"土", 土:"金", 金:"水", 水:"木" };
         const controls = { 木:"土", 土:"水", 水:"火", 火:"金", 金:"木" };
-        if (generates[direction] === day) return { adjustment:10, label:"方位生扶日主" };
-        if (generates[day] === direction) return { adjustment:-5, label:"日主洩氣於方位" };
-        if (controls[direction] === day) return { adjustment:-12, label:"方位五行克日主" };
-        return { adjustment:2, label:"日主可制衡方位" };
+        if (generates[direction] === day) return { adjustment:10, label:"方位生扶日主", type:"supports" };
+        if (generates[day] === direction) return { adjustment:-5, label:"日主洩氣於方位", type:"drains" };
+        if (controls[direction] === day) return { adjustment:-12, label:"方位五行克日主", type:"attacks" };
+        return { adjustment:2, label:"日主可制衡方位", type:"dominates" };
+    }
+
+    function buildPersonalComplement(day, direction, relationship) {
+        const generates = { 木:"火", 火:"土", 土:"金", 金:"水", 水:"木" };
+        const mother = { 木:"水", 火:"木", 土:"火", 金:"土", 水:"金" };
+        const element = relationship.type === "attacks" ? generates[direction] : relationship.type === "drains" ? mother[day] : generates[day];
+        const guide = ELEMENT_GUIDES[element];
+        const alternative = DIRECTION_SECTORS.filter(sector => sector.element === element).sort((a,b) => angularDistance(currentAngle, a.center) - angularDistance(currentAngle, b.center))[0];
+        const strategy = relationship.type === "attacks"
+            ? `以${element}作橋樑，洩化${direction}對${day}的壓力並轉為生扶。`
+            : relationship.type === "drains"
+                ? `補入能生${day}的${element}，降低個人能量向${direction}持續外洩。`
+                : relationship.type === "same"
+                    ? `同元素偏旺，以${element}疏導，讓氣勢從累積轉為可用。`
+                    : `以${element}建立五行流通，避免個人與方位任何一方過度偏強。`;
+        return { element, guide, alternative, strategy };
     }
 
     function calculatePersonalResonance(event) {
@@ -998,6 +1026,7 @@
         })).sort((a, b) => a.distance - b.distance);
         const nearest = ranked[0];
         const relation = personalElementRelationship(dayElement, currentDirection.element);
+        const complement = buildPersonalComplement(dayElement, currentDirection.element, relation);
         const alignment = Math.max(0, 1 - nearest.distance / 90) * 48;
         const score = Math.round(Math.max(18, Math.min(96, 34 + alignment + relation.adjustment)));
         const band = score >= 82 ? "高度共振" : score >= 65 ? "良好共振" : score >= 48 ? "中性可調" : "低度共振";
@@ -1021,6 +1050,13 @@
         document.getElementById("favorableResult").textContent = `${nearest.label}・差 ${nearest.distance.toFixed(1)}°`;
         document.getElementById("metaphysicsResult").textContent = `年柱象徵為${yearPillar}，日柱為${dayStem}${dayBranch}，日主屬${dayElement}；個人命卦為${kuaInfo.trigram}卦，四個有利方向為${kuaInfo.labels.join("、")}。`;
         document.getElementById("actionsResult").innerHTML = actions.map(item => `<li>• ${item}</li>`).join("");
+        document.getElementById("complementStrategy").textContent = `建議補${complement.element}：${complement.strategy}`;
+        document.getElementById("complementResult").innerHTML = [
+            `替代朝向：${complement.alternative.name}（${complement.alternative.center}°）`,
+            `顏色：${complement.guide.colors.join("、")}`,
+            `材質：${complement.guide.materials.join("、")}`,
+            `適合：${complement.guide.actions.join("、")}`
+        ].map(item => `<li>• ${item}</li>`).join("");
         personalProfileReady = true;
         localStorage.setItem("personal_resonance_profile", JSON.stringify({ name, birthPlace, dateValue, timeValue, gender }));
         if (event) showToast(`${name}的個人命理共振分析已完成。`);
