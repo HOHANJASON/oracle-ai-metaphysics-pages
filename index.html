@@ -350,7 +350,7 @@
                 <div>
                     <span class="text-[10px] font-mono text-cyber-500 uppercase tracking-widest">Personal Resonance Engine</span>
                     <h3 class="text-xl font-bold font-serif text-slate-100">三、出生命盤與地磁方位共振</h3>
-                    <p class="text-xs text-slate-400 mt-1">輸入出生年月日時，自動套合命卦、日主五行、二十四山與目前朝向。</p>
+                    <p class="text-xs text-slate-400 mt-1">輸入西元出生日期即會精確換算農曆；時間、性別、姓名與出生地皆可選填，資料越完整，推測範圍越精確。</p>
                 </div>
             </div>
             <span class="text-[10px] text-amber-300 border border-amber-500/30 bg-amber-500/5 rounded-full px-3 py-1">命理象徵模型・非物理磁場檢測</span>
@@ -360,28 +360,36 @@
             <form class="xl:col-span-5 bg-slate-950/70 border border-slate-800 rounded-2xl p-5 space-y-4" onsubmit="calculatePersonalResonance(event)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <label class="space-y-1.5">
-                        <span class="text-[11px] text-slate-400">姓名／案例名稱</span>
+                        <span class="text-[11px] text-slate-400">姓名／案例名稱（選填）</span>
                         <input id="personalName" type="text" placeholder="例如：林昱辰" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
                     </label>
                     <label class="space-y-1.5">
-                        <span class="text-[11px] text-slate-400">出生地</span>
+                        <span class="text-[11px] text-slate-400">出生地（選填）</span>
                         <input id="birthPlace" type="text" placeholder="例如：臺北市" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
                     </label>
                     <label class="space-y-1.5">
-                        <span class="text-[11px] text-slate-400">出生年月日 *</span>
-                        <input id="birthDate" type="date" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                        <span class="text-[11px] text-slate-400">西元出生年月日 *</span>
+                        <input id="birthDate" type="date" required onchange="updateLunarPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
                     </label>
                     <label class="space-y-1.5">
-                        <span class="text-[11px] text-slate-400">出生時間 *</span>
-                        <input id="birthTime" type="time" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                        <span class="text-[11px] text-slate-400">出生時間（選填，影響時柱）</span>
+                        <input id="birthTime" type="time" onchange="updateLunarPreview()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
                     </label>
-                    <label class="space-y-1.5 sm:col-span-2">
-                        <span class="text-[11px] text-slate-400">生理性別（命卦規則）</span>
+                    <label class="space-y-1.5">
+                        <span class="text-[11px] text-slate-400">性別（選填，影響命卦）</span>
                         <select id="birthGender" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                            <option value="">未提供（保留男女雙情境）</option>
                             <option value="male">男</option>
                             <option value="female">女</option>
                         </select>
                     </label>
+                    <label class="space-y-1.5">
+                        <span class="text-[11px] text-slate-400">姓名康熙總格（選填）</span>
+                        <input id="nameStrokeTotal" type="number" min="1" inputmode="numeric" placeholder="例如：31" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-cyber-500">
+                    </label>
+                </div>
+                <div id="lunarPreview" class="bg-cyber-500/5 border border-cyber-500/20 rounded-xl p-3 text-[11px] text-slate-400 leading-relaxed">
+                    選擇西元日期後，這裡會顯示精確農曆日期。
                 </div>
                 <div class="bg-slate-900/50 rounded-xl p-3 text-[11px] text-slate-400 leading-relaxed">
                     本次會使用目前羅盤角度 <strong id="profileHeading" class="text-cyber-500">180°</strong>。請先校準手機，或拖動上方角度滑桿。
@@ -411,11 +419,13 @@
                         </div>
                     </div>
                     <div class="h-2 bg-slate-800 rounded-full overflow-hidden"><div id="resonanceBar" class="h-full bg-gradient-to-r from-blue-500 via-cyber-500 to-emerald-400 transition-all duration-700" style="width:0%"></div></div>
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
                         <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">日主五行</span><strong id="dayMasterResult" class="text-sm text-slate-100">--</strong></div>
                         <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">個人命卦</span><strong id="kuaResult" class="text-sm text-slate-100">--</strong></div>
                         <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">目前方位</span><strong id="directionResult" class="text-sm text-slate-100">--</strong></div>
                         <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">最近吉方</span><strong id="favorableResult" class="text-sm text-slate-100">--</strong></div>
+                        <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">精確農曆</span><strong id="lunarDateResult" class="text-sm text-slate-100">--</strong></div>
+                        <div class="bg-slate-900 rounded-xl p-3 border border-slate-800"><span class="text-[10px] text-slate-500 block">資料完整度</span><strong id="qualityResult" class="text-sm text-slate-100">--</strong></div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="border border-slate-800 rounded-xl p-4">
@@ -463,6 +473,12 @@
         <p>© 2026 Space-Decision Science. Periods-9 Mobile Gyro排盤系統 (Fully Local Offline Version). All Rights Reserved.</p>
     </div>
 </footer>
+
+<!-- 精確西元／農曆換算引擎（隨網站部署，不依賴第三方 API） -->
+<script type="module">
+    import { Solar } from "./lunar-typescript.mjs";
+    window.LunarSolar = Solar;
+</script>
 
 <!-- 核心排盤計算與傳感器引擎 -->
 <script>
@@ -581,8 +597,10 @@
             document.getElementById("birthPlace").value = storedProfile.birthPlace || "";
             document.getElementById("birthDate").value = storedProfile.dateValue || "";
             document.getElementById("birthTime").value = storedProfile.timeValue || "";
-            document.getElementById("birthGender").value = storedProfile.gender || "male";
+            document.getElementById("birthGender").value = storedProfile.gender || "";
+            document.getElementById("nameStrokeTotal").value = storedProfile.nameStrokeTotal || "";
         }
+        updateLunarPreview();
 
         // 啟動默認排盤 (180°午山向)
         updateCompass(180);
@@ -968,6 +986,37 @@
         return day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
     }
 
+    function getExactLunarProfile(dateValue, timeValue = "") {
+        if (!window.LunarSolar) return null;
+        const [year, month, day] = dateValue.split("-").map(Number);
+        const [hour = 12, minute = 0] = (timeValue || "12:00").split(":").map(Number);
+        const solar = window.LunarSolar.fromYmdHms(year, month, day, hour, minute, 0);
+        const lunar = solar.getLunar();
+        const eightChar = lunar.getEightChar();
+        eightChar.setSect(2);
+        return { solar, lunar, eightChar, year, month, day, hour, minute };
+    }
+
+    function updateLunarPreview() {
+        const preview = document.getElementById("lunarPreview");
+        const dateValue = document.getElementById("birthDate")?.value;
+        if (!preview || !dateValue) return;
+        const profile = getExactLunarProfile(dateValue, document.getElementById("birthTime")?.value || "");
+        preview.innerHTML = profile
+            ? `<span class="text-cyber-500 font-bold">西元 ${dateValue}</span> → <span class="text-slate-100 font-bold">${profile.lunar.toString()}</span><br><span class="text-slate-500">換算日期本身不受其他選填資料影響。</span>`
+            : "農曆引擎載入中，請稍後再試。";
+    }
+
+    function analyzePersonalName(strokeTotal) {
+        if (!Number.isInteger(strokeTotal) || strokeTotal < 1) return null;
+        const number = ((strokeTotal - 1) % 81) + 1;
+        const lucky = new Set([1,3,5,6,7,8,11,13,15,16,17,18,21,23,24,25,29,31,32,33,35,37,39,41,45,47,48,52,57,61,63,65,67,68,81]);
+        const cautious = new Set([4,9,10,12,14,19,20,22,26,27,28,34,36,40,42,43,44,46,49,50,51,53,54,55,56,58,59,60,62,64,66,69,70,71,72,73,74,75,76,77,78,79,80]);
+        const last = number % 10;
+        const element = [1,2].includes(last) ? "木" : [3,4].includes(last) ? "火" : [5,6].includes(last) ? "土" : [7,8].includes(last) ? "金" : "水";
+        return { number, element, tendency: lucky.has(number) ? "吉勢" : cautious.has(number) ? "宜審慎" : "中性" };
+    }
+
     function angularDistance(a, b) {
         const diff = Math.abs(a - b) % 360;
         return Math.min(diff, 360 - diff);
@@ -1003,52 +1052,88 @@
         if (event) event.preventDefault();
         const dateValue = document.getElementById("birthDate").value;
         const timeValue = document.getElementById("birthTime").value;
-        if (!dateValue || !timeValue) {
-            showToast("請完整輸入出生年月日與時間。");
+        if (!dateValue) {
+            showToast("請輸入西元出生年月日。");
             return;
         }
 
-        const [year, month, day] = dateValue.split("-").map(Number);
-        const [hour] = timeValue.split(":").map(Number);
+        const exact = getExactLunarProfile(dateValue, timeValue);
+        if (!exact) {
+            showToast("精確農曆引擎仍在載入，請稍後再試。");
+            return;
+        }
+        const { year, lunar, eightChar } = exact;
         const gender = document.getElementById("birthGender").value;
-        const name = document.getElementById("personalName").value.trim() || "個人案例";
-        const birthPlace = document.getElementById("birthPlace").value.trim() || "未指定出生地";
-        const dayCycle = (julianDayNumber(year, month, day) + 49) % 60;
-        const dayStem = PERSONAL_STEMS[dayCycle % 10];
-        const dayBranch = PERSONAL_BRANCHES[dayCycle % 12];
+        const providedName = document.getElementById("personalName").value.trim();
+        const providedBirthPlace = document.getElementById("birthPlace").value.trim();
+        const strokeValue = Number(document.getElementById("nameStrokeTotal").value);
+        const nameNumerology = analyzePersonalName(strokeValue);
+        const name = providedName || "個人案例";
+        const birthPlace = providedBirthPlace || "出生地未提供";
+        const dayStem = eightChar.getDayGan();
         const dayElement = PERSONAL_ELEMENTS[dayStem];
-        const hourBranch = PERSONAL_BRANCHES[Math.floor((hour + 1) / 2) % 12];
-        const kua = personalKuaNumber(year, gender);
-        const kuaInfo = PERSONAL_KUA[kua];
+        const kuaScenarios = gender
+            ? [{ gender, kua: personalKuaNumber(year, gender) }]
+            : [
+                { gender:"male", kua:personalKuaNumber(year, "male") },
+                { gender:"female", kua:personalKuaNumber(year, "female") }
+            ];
+        const personalOptions = kuaScenarios.map(option => ({ ...option, ...PERSONAL_KUA[option.kua] }));
         const currentDirection = DIRECTION_SECTORS.reduce((best, sector) => angularDistance(currentAngle, sector.center) < angularDistance(currentAngle, best.center) ? sector : best);
-        const ranked = kuaInfo.directions.map((direction, index) => ({
-            direction, label:kuaInfo.labels[index], distance:angularDistance(currentAngle, direction)
-        })).sort((a, b) => a.distance - b.distance);
+        const ranked = personalOptions.flatMap(option => option.directions.map((direction, index) => ({
+            direction,
+            label:option.labels[index],
+            distance:angularDistance(currentAngle, direction),
+            scenario:option.gender,
+            info:option
+        }))).sort((a, b) => a.distance - b.distance);
         const nearest = ranked[0];
+        const primaryInfo = personalOptions[0];
         const relation = personalElementRelationship(dayElement, currentDirection.element);
         const complement = buildPersonalComplement(dayElement, currentDirection.element, relation);
         const alignment = Math.max(0, 1 - nearest.distance / 90) * 48;
         const score = Math.round(Math.max(18, Math.min(96, 34 + alignment + relation.adjustment)));
         const band = score >= 82 ? "高度共振" : score >= 65 ? "良好共振" : score >= 48 ? "中性可調" : "低度共振";
-        const yearCycle = ((year - 4) % 60 + 60) % 60;
-        const yearPillar = `${PERSONAL_STEMS[yearCycle % 10]}${PERSONAL_BRANCHES[yearCycle % 12]}`;
+        const pillars = [eightChar.getYear(), eightChar.getMonth(), eightChar.getDay(), timeValue ? eightChar.getTime() : null];
+        const completeness = Math.min(96, 58
+            + (timeValue ? 15 : 0)
+            + (gender ? 10 : 0)
+            + (providedBirthPlace ? 5 : 0)
+            + (providedName ? 2 : 0)
+            + (nameNumerology ? 4 : 0));
+        const qualityLevel = completeness >= 88 ? "高" : completeness >= 72 ? "中" : "基礎";
+        const missing = [
+            !timeValue && "出生時間",
+            !gender && "性別／命卦",
+            !providedBirthPlace && "出生地",
+            !providedName && "姓名",
+            !nameNumerology && "姓名康熙總格"
+        ].filter(Boolean);
         const actions = score >= 65
-            ? [`重要工作可優先面向${nearest.label}`, `可用${kuaInfo.element}與${dayElement}的象徵色作空間提示`, "移動位置後重新校準手機羅盤"]
+            ? [`重要工作可優先面向${nearest.label}`, `可用${primaryInfo.element}與${dayElement}的象徵色作空間提示`, "移動位置後重新校準手機羅盤"]
             : [`先轉向${nearest.label}再重新測量`, "避免長時間固定在目前低分朝向", "同時以採光、通風與人體舒適度校正"];
+        const kuaLabel = gender
+            ? `${primaryInfo.kua}・${primaryInfo.trigram}卦（${primaryInfo.element}）`
+            : personalOptions.map(option => `${option.gender === "male" ? "男" : "女"}：${option.kua}・${option.trigram}卦`).join("／");
+        const nameDetail = nameNumerology
+            ? `姓名總格 ${strokeValue}（81 數理取 ${nameNumerology.number}，${nameNumerology.element}、${nameNumerology.tendency}）僅作簡化參考。`
+            : "未提供姓名總格，姓名數理不納入本次推測。";
 
         document.getElementById("personalEmpty").classList.add("hidden");
         document.getElementById("personalResult").classList.remove("hidden");
         document.getElementById("resultIdentity").textContent = `${name}・${birthPlace}`;
-        document.getElementById("resultTitle").textContent = `${yearPillar}年・${dayStem}${dayBranch}日・${hourBranch}時`;
-        document.getElementById("resultSummary").textContent = `${dayStem}${dayElement}日主面向${currentDirection.name}（${currentDirection.element}），${relation.label}；與最近個人吉方${nearest.label}相差 ${nearest.distance.toFixed(1)}°。`;
+        document.getElementById("resultTitle").textContent = `${pillars[0]}年・${pillars[2]}日・${pillars[3] ? `${pillars[3]}時` : "時辰未提供"}`;
+        document.getElementById("resultSummary").textContent = `${dayStem}${dayElement}日主面向${currentDirection.name}（${currentDirection.element}），${relation.label}；與最近吉方${nearest.label}相差 ${nearest.distance.toFixed(1)}°。資料完整度 ${completeness}%，缺少的資料不會被系統臆測。`;
         document.getElementById("resonanceScore").textContent = score;
         document.getElementById("resonanceBand").textContent = band;
         document.getElementById("resonanceBar").style.width = `${score}%`;
         document.getElementById("dayMasterResult").textContent = `${dayStem}${dayElement}`;
-        document.getElementById("kuaResult").textContent = `${kua}・${kuaInfo.trigram}卦（${kuaInfo.element}）`;
+        document.getElementById("kuaResult").textContent = kuaLabel;
         document.getElementById("directionResult").textContent = `${Math.round(currentAngle)}°・${currentDirection.name}`;
-        document.getElementById("favorableResult").textContent = `${nearest.label}・差 ${nearest.distance.toFixed(1)}°`;
-        document.getElementById("metaphysicsResult").textContent = `年柱象徵為${yearPillar}，日柱為${dayStem}${dayBranch}，日主屬${dayElement}；個人命卦為${kuaInfo.trigram}卦，四個有利方向為${kuaInfo.labels.join("、")}。`;
+        document.getElementById("favorableResult").textContent = `${nearest.label}・差 ${nearest.distance.toFixed(1)}°${gender ? "" : `（${nearest.scenario === "male" ? "男" : "女"}情境）`}`;
+        document.getElementById("lunarDateResult").textContent = lunar.toString();
+        document.getElementById("qualityResult").textContent = `${completeness}%・${qualityLevel}`;
+        document.getElementById("metaphysicsResult").textContent = `精確農曆為${lunar.toString()}；三柱為${pillars.slice(0, 3).join("、")}${pillars[3] ? `，時柱${pillars[3]}` : "，未提供時間故不推時柱"}。日主屬${dayElement}；${gender ? `命卦為${primaryInfo.trigram}卦` : "性別未提供，命卦保留男女雙情境"}。${nameDetail} 尚缺：${missing.length ? missing.join("、") : "無"}。`;
         document.getElementById("actionsResult").innerHTML = actions.map(item => `<li>• ${item}</li>`).join("");
         document.getElementById("complementStrategy").textContent = `建議補${complement.element}：${complement.strategy}`;
         document.getElementById("complementResult").innerHTML = [
@@ -1058,7 +1143,7 @@
             `適合：${complement.guide.actions.join("、")}`
         ].map(item => `<li>• ${item}</li>`).join("");
         personalProfileReady = true;
-        localStorage.setItem("personal_resonance_profile", JSON.stringify({ name, birthPlace, dateValue, timeValue, gender }));
+        localStorage.setItem("personal_resonance_profile", JSON.stringify({ name:providedName, birthPlace:providedBirthPlace, dateValue, timeValue, gender, nameStrokeTotal:nameNumerology ? strokeValue : "" }));
         if (event) showToast(`${name}的個人命理共振分析已完成。`);
     }
 
